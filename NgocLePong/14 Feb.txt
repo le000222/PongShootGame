@@ -1,0 +1,58 @@
+Board - RenderComp (APaperSprite)
+TSubclassOf <class BouncyBall> BallTemplate
+
+class AIPaddle* Paddle
+
+void OnLeftBoxOverlapBegin
+
+Up Box: 
+setboxextend
+setcollisionend
+setcollisionenabled(queryandphysics)
+setcolliprofilename
+setnotifyrigidbodycollision
+setrelativelocation(Fvector(0.f, 0.f, 670f)
+
+createdefaultsubobject<ustaticmeshcomp>("up")
+
+p1 goal box
+leftbox = createdefault
+leftbox->setcolissionenabled(queryandphysic)
+leftbox->setcollisionprofilename("overlap all)
+leftbox->setgenerateoverlapevents*
+
+arrow comp:
+spawnpoint = createdefault
+spawnpoint = setupattachment(rootcomp)
+
+beginplay:
+for loop Tactoriterator<aaipaddlepawn> 
+
+aringspawner* aspwnser = cast<Aringspawner>(ugameplaystatiscs::getactorofclass(Getworld(), Aringspwaner::staticclass()));
+--> cast when the pointer
+
+onleftoverlapbegin/onrightoverlapbegin
+if (otheractor && otheractor != this) resetball(otheractor) (get game state and increment game state)
+aipawn/otheractor->teleportTo(FVector(100,100,100), FRotator:ZeroRotator);
+
+resetball:
+if (ball) ball->destroy()
+else 
+	mullifyballref()
+
+nullifyref
+if (aipawn) aipawn->setball(nullptr)
+
+Uword const world = getworld()
+if (world)
+	facorspawnparam spawnparams;
+	spawnparams.owner = this
+	spawnparams
+
+shouldBounce = true
+set bounciness
+0 out projecttilecomp gravity scale
+
+Goal Collision
+bCanEverTick = true
+Goalcollision = createdefault
