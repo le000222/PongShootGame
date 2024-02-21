@@ -56,15 +56,6 @@ void APlayerPaddle::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector No
 	}
 }
 
-void APlayerPaddle::OnCollisionSphereHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	if (OtherActor->GetName() != "Floor") /* CHANGE LATER */
-	{
-		FString Message = FString("OnCollisionSphereHit: ") + OtherActor->GetName();
-		PrintMessageOnScreen(Message);
-	}
-}
-
 // Called every frame
 void APlayerPaddle::Tick(float DeltaTime)
 {

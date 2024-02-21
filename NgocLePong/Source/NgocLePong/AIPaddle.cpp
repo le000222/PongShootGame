@@ -12,13 +12,13 @@ AAIPaddle::AAIPaddle()
 void AAIPaddle::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 }
 
 void AAIPaddle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UE_LOG(LogTemp, Warning, TEXT("Going to Tick"));
+	Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	if (Ball != NULL)
 	{
@@ -27,6 +27,10 @@ void AAIPaddle::Tick(float DeltaTime)
 		TargetLocation.Z = Ball->GetActorLocation().Z;
 		FVector NewLocation = FMath::Lerp(GetActorLocation(), TargetLocation, 0.08f);
 		SetActorLocation(NewLocation);
+	}
+	else
+	{
+		PrintMessageOnScreen("Ball is NULL");
 	}
 }
 

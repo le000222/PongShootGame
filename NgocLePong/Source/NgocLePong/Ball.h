@@ -21,6 +21,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ball")
 	UStaticMeshComponent* VisualMesh;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	class UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Arrow")
+	class UArrowComponent* ArrowComponent;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
