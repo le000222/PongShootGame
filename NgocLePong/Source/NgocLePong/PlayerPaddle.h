@@ -24,8 +24,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerPaddle")
 	UStaticMeshComponent* VisualMesh;
 
-	void MoveRight(float Amount);
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,6 +33,11 @@ protected:
 
 	UFUNCTION()
 	void OnCollisionSphereHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+private:
+	float MoveUpAmount = 0;
+
+	void MoveUp(float Amount);
 
 public:	
 	// Called every frame

@@ -13,11 +13,29 @@ APlayerPaddle::APlayerPaddle()
 	PlayerPaddle = CreateDefaultSubobject<UBoxComponent>(TEXT("PlayerPaddle"));
 	VisualMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualMesh"));
 
+	PlayerPaddle->SetSimulatePhysics(true);
+	PlayerPaddle->SetEnableGravity(false);
+	PlayerPaddle->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
+	PlayerPaddle->SetCollisionProfileName("Pawn");
+	PlayerPaddle->SetLinearDamping(10);
+
 	SetRootComponent(PlayerPaddle);
 	VisualMesh->SetupAttachment(RootComponent);
 
-	VisualMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	VisualMesh->SetCollisionProfileName(TEXT("IgnoreAll"));
+
+	//Restrict Movement and/or rotation of a Actor or Pawn
+	PlayerPaddle->GetBodyInstance()->bLockXRotation = true;
+	PlayerPaddle->GetBodyInstance()->bLockYRotation = true;
+	PlayerPaddle->GetBodyInstance()->bLockZRotation = true;
+	PlayerPaddle->GetBodyInstance()->bLockXTranslation = true;
+	PlayerPaddle->GetBodyInstance()->bLockYTranslation = true;
+	//PlayerPaddle->GetBodyInstance()->bLockZTranslation = true;
+
 }
 
 // Called when the game starts or when spawned
@@ -25,7 +43,7 @@ void APlayerPaddle::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerPaddle->OnComponentHit.AddDynamic(this, &APlayerPaddle::OnCollisionSphereHit);
+	OnActorHit.AddDynamic(this, &APlayerPaddle::OnHitActor);
 	
 }
 
@@ -52,6 +70,16 @@ void APlayerPaddle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (Controller)
+	{
+		FVector Direction(0);
+		if (MoveUpAmount != 0)
+		{
+			Direction = GetActorLocation() + MoveUpAmount;
+			SetActorLocation(Direction);
+		}
+	}
+
 }
 
 // Called to bind functionality to input
@@ -59,13 +87,15 @@ void APlayerPaddle::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerPaddle::MoveRight);
-
+	if (PlayerInputComponent != NULL)
+	{
+		PlayerInputComponent->BindAxis("MoveUp", this, &APlayerPaddle::MoveUp);
+	}
 }
 
-void APlayerPaddle::MoveRight(float Amount)
+void APlayerPaddle::MoveUp(float Amount)
 {
-	//PlayerPaddle->AddInputVector(GetActorRightVector() * Amount);
+	MoveUpAmount = Amount;
 }
 
 void APlayerPaddle::PrintMessageOnScreen(FString Message)
