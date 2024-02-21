@@ -20,10 +20,6 @@ APlayerPaddle::APlayerPaddle()
 	VisualMesh->SetCollisionProfileName(TEXT("IgnoreAll"));
 }
 
-void APlayerPaddle::MoveRight(float Amount)
-{
-}
-
 // Called when the game starts or when spawned
 void APlayerPaddle::BeginPlay()
 {
