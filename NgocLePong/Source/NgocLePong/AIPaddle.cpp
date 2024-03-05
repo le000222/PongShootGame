@@ -12,6 +12,8 @@ AAIPaddle::AAIPaddle()
 void AAIPaddle::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("ai starting"));
+
 }
 
 void AAIPaddle::Tick(float DeltaTime)

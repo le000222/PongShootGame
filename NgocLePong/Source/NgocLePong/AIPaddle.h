@@ -28,5 +28,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void PrintMessageOnScreen(FString Message);
+	void PrintMessageOnScreen(FString Message) override;
 };
