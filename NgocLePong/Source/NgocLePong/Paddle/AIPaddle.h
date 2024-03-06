@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PlayerPaddle.h"
-#include "Ball.h"
+#include "../Ball/Ball.h"
 #include "AIPaddle.generated.h"
 
 /**
@@ -28,5 +28,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void PrintMessageOnScreen(FString Message) override;
+	void PrintMessageOnScreen(FString Message);
 };

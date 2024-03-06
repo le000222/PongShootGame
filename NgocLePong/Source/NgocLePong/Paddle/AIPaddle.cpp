@@ -12,14 +12,14 @@ AAIPaddle::AAIPaddle()
 void AAIPaddle::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("ai starting"));
+	PrintMessageOnScreen(FString("ai starting"));
 
 }
 
 void AAIPaddle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("Going to Tick"));
+	PrintMessageOnScreen(FString("Going to Tick"));
 	Ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	if (Ball != NULL)

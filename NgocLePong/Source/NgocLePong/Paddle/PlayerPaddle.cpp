@@ -44,6 +44,8 @@ void APlayerPaddle::BeginPlay()
 	Super::BeginPlay();
 
 	OnActorHit.AddDynamic(this, &APlayerPaddle::OnHitActor);
+	PrintMessageOnScreen(FString("pp starting"));
+
 }
 
 void APlayerPaddle::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)

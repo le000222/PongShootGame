@@ -43,7 +43,6 @@ void ABall::BeginPlay()
 	SetActorRotation(ArrowComponent->GetRelativeRotation());
 	FVector ArrowDirection = GetActorForwardVector();
 	ProjectileMovement->Velocity = ArrowDirection * ProjectileMovement->InitialSpeed;
-	
 }
 
 // Called every frame
