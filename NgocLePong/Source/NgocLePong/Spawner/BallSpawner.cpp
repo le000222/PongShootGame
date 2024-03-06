@@ -15,10 +15,19 @@ void ABallSpawner::SpawnBall()
 {
 	if (!IsValid(BallObject))
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		BallObject = GetWorld()->SpawnActor<ABall>(BallBlueprint, GetActorLocation(), GetActorRotation(), SpawnParams);
+		if (bIsBallActive == false)
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+			BallObject = GetWorld()->SpawnActor<ABall>(BallBlueprint, GetActorLocation(), GetActorRotation(), SpawnParams);
+		}
+
+		if (BallObject)
+		{
+			BallObject->OnDestroyed.AddDynamic(this, &ABallSpawner::OnBallDestroyed);
+			bIsBallActive = true;
+		}
 	}
 }
 
@@ -26,12 +35,6 @@ void ABallSpawner::SpawnBall()
 void ABallSpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	
-}
-
-void ABallSpawner::OnBallDestroyed(AActor* DestroyedActor)
-{
-	DestroyedActor->OnDestroyed.RemoveAll(this);
 }
 
 // Called every frame
@@ -39,5 +42,13 @@ void ABallSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	SpawnBall();
+}
+
+
+void ABallSpawner::OnBallDestroyed(AActor* DestroyedActor)
+{
+	bIsBallActive = false;
+	DestroyedActor->OnDestroyed.RemoveAll(this);
 }
 

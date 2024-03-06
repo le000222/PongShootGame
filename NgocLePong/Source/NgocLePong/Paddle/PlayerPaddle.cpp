@@ -23,7 +23,7 @@ APlayerPaddle::APlayerPaddle()
 	SetRootComponent(PlayerPaddle);
 	VisualMesh->SetupAttachment(RootComponent);
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	//AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	VisualMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	VisualMesh->SetCollisionProfileName(TEXT("IgnoreAll"));

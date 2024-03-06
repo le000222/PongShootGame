@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ball.h"
+#include "../PongHUD.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/ArrowComponent.h"
@@ -32,7 +34,6 @@ ABall::ABall()
 	ProjectileMovement->bShouldBounce = true;
 	ProjectileMovement->Bounciness = 1.1;
 	ProjectileMovement->Friction = 0.f;
-	
 }
 
 // Called when the game starts or when spawned
@@ -43,6 +44,12 @@ void ABall::BeginPlay()
 	SetActorRotation(ArrowComponent->GetRelativeRotation());
 	FVector ArrowDirection = GetActorForwardVector();
 	ProjectileMovement->Velocity = ArrowDirection * ProjectileMovement->InitialSpeed;
+
+	if (WBP_PongHUD)
+	{
+		MyHud = CreateWidget<UPongHUD>(GetWorld(), WBP_PongHUD);
+		MyHud->AddToViewport();
+	}
 }
 
 // Called every frame

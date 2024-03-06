@@ -2,7 +2,7 @@
 
 #include "NgocLePongGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "./BallSpawner.h"
+#include "./Spawner/BallSpawner.h"
 
 void ANgocLePongGameModeBase::BeginPlay()
 {

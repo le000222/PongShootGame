@@ -21,11 +21,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ball")
 	UStaticMeshComponent* VisualMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ball")
 	class UProjectileMovementComponent* ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Arrow")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ball")
 	class UArrowComponent* ArrowComponent;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<class UPongHUD> WBP_PongHUD;
+
+	class UPongHUD* MyHud;
 
 protected:
 	// Called when the game starts or when spawned

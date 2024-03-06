@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "./Ball/Ball.h"
+#include "../Ball/Ball.h"
 #include "BallSpawner.generated.h"
 
 UCLASS()
@@ -22,6 +22,12 @@ public:
 	UPROPERTY(Transient)
 	class ABall* BallObject;
 
+	UPROPERTY(Transient)
+	bool bIsBallActive = false;
+
+	UFUNCTION()
+	void OnBallDestroyed(AActor* DestroyedActor);
+
 	void SpawnBall();
 
 	virtual void Tick(float DeltaTime) override;
@@ -30,7 +36,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void OnBallDestroyed(AActor* DestroyedActor);
+
 
 };
