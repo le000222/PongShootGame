@@ -3,6 +3,7 @@
 
 #include "Goal.h"
 #include "../Ball/Ball.h"
+#include "../NgocLePongGameState.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -23,7 +24,6 @@ void AGoal::BeginPlay()
 	Super::BeginPlay();
 
 	OnActorBeginOverlap.AddDynamic(this, &AGoal::OnComponentOverlapBegin);
-	//GoalCollision->OnComponentBeginOverlap.AddDynamic(this, &AGoal::OnComponentOverlapBegin);
 	
 }
 
@@ -37,6 +37,12 @@ void AGoal::OnComponentOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 		ABall* Ball = Cast<ABall>(OtherActor);
 		if (Ball)
 		{
+			ANgocLePongGameState* GS = GetWorld()->GetGameState<ANgocLePongGameState>();
+			
+			if (GoalPosition == GoalPositionEnum::Option1)
+				GS->P2Score++;
+			else
+				GS->P1Score++;
 			Ball->Destroy();
 		}
 	}

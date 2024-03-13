@@ -3,17 +3,36 @@
 
 #include "PongHUD.h"
 #include "./Ball/Ball.h"
+#include "./NgocLePongGameState.h"
 #include "Components/TextBlock.h"
 
-FText UPongHUD::UpdateTextScore()
+FText UPongHUD::UpdateP1Score()
 {
 	APlayerController* PC = GetOwningPlayer();
 	if (PC)
 	{
-		if (Player1Score)
+		if (P1ScoreText)
 		{
-			//return FText::FromString(FString::FromInt(AmmoCount) + "/" + FString::FromInt(MaxAmmo));
-			//return FText::AsNumber(AmmoCount);
+
+			ANgocLePongGameState* GS = 	GetWorld()->GetGameState<ANgocLePongGameState>();
+			return FText::FromString("Player Score: " + FString::FromInt(GS->P1Score));
+
+		}
+	}
+	return FText::FromString("NULL");
+}
+
+FText UPongHUD::UpdateP2Score()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (PC)
+	{
+		if (P2ScoreText)
+		{
+
+			ANgocLePongGameState* GS = 	GetWorld()->GetGameState<ANgocLePongGameState>();
+			return FText::FromString("AI Score: " + FString::FromInt(GS->P2Score));
+
 		}
 	}
 	return FText::FromString("NULL");
@@ -23,10 +42,14 @@ bool UPongHUD::Initialize()
 {
 	bool Success = Super::Initialize();
 
-	if (Player1Score && Player2Score)
+	if (P1ScoreText)
 	{
-		Player1Score->TextDelegate.BindUFunction(this, "UpdateScoreText");
-		Player2Score->TextDelegate.BindUFunction(this, "UpdateScoreText");
+		P1ScoreText->TextDelegate.BindUFunction(this, "UpdateP1Score");
+	}
+
+	if (P2ScoreText)
+	{
+		P2ScoreText->TextDelegate.BindUFunction(this, "UpdateP2Score");
 	}
 
 	return true;

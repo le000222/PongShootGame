@@ -27,11 +27,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ball")
 	class UArrowComponent* ArrowComponent;
 
-	UPROPERTY(EditAnywhere, Category = "HUD")
-	TSubclassOf<class UPongHUD> WBP_PongHUD;
-
-	class UPongHUD* MyHud;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

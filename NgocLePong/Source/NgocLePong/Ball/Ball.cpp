@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Ball.h"
-#include "../PongHUD.h"
-#include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/ArrowComponent.h"
@@ -45,11 +43,6 @@ void ABall::BeginPlay()
 	FVector ArrowDirection = GetActorForwardVector();
 	ProjectileMovement->Velocity = ArrowDirection * ProjectileMovement->InitialSpeed;
 
-	if (WBP_PongHUD)
-	{
-		MyHud = CreateWidget<UPongHUD>(GetWorld(), WBP_PongHUD);
-		MyHud->AddToViewport();
-	}
 }
 
 // Called every frame

@@ -2,6 +2,8 @@
 
 
 #include "PlayerPaddle.h"
+#include "../PongHUD.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -46,6 +48,11 @@ void APlayerPaddle::BeginPlay()
 	OnActorHit.AddDynamic(this, &APlayerPaddle::OnHitActor);
 	PrintMessageOnScreen(FString("pp starting"));
 
+	if (WBP_PongHUD)
+	{
+		MyHud = CreateWidget<UPongHUD>(GetWorld(), WBP_PongHUD);
+		MyHud->AddToViewport();
+	}
 }
 
 void APlayerPaddle::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)

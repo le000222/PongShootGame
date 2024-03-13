@@ -17,15 +17,18 @@ class NGOCLEPONG_API UPongHUD : public UUserWidget
 public:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* Player1Score = nullptr;
+	class UTextBlock* P1ScoreText = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UTextBlock* Player2Score = nullptr;
+	class UTextBlock* P2ScoreText = nullptr;
 
 	virtual bool Initialize() override;
 
 private:
 	UFUNCTION()
-	FText UpdateTextScore();
+	FText UpdateP1Score();
+
+	UFUNCTION()
+	FText UpdateP2Score();
 
 };
