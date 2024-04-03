@@ -1,26 +1,40 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright (c) 2017 GAM1528. All Rights Reserved.
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include <GameFramework/Actor.h>
 #include "ProjectileBase.generated.h"
+
+//TODO 1: Study this Class
 
 UCLASS()
 class NGOCCOLORSHOOT_API AProjectileBase : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AProjectileBase();
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+	float Damage;
+
+	UPROPERTY(EditDefaultsOnly)
+	float Speed;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LifeTime;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	AProjectileBase();
 
-public:	
-	// Called every frame
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void OnActorHit(AActor* Self, AActor* Other, FVector NormalImpulse, const FHitResult& Hit);
+
+private:
+	void DestroySelf();
+
+private:
+	FTimerHandle Timer;
 };

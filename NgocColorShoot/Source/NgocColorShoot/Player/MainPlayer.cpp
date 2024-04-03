@@ -4,9 +4,11 @@
 #include "MainPlayer.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Components/SphereComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
-#include "../Weapon/Weapon.h"
+#include "../Weapon/WeaponBase.h"
 
 // Sets default values
 AMainPlayer::AMainPlayer()
@@ -19,6 +21,7 @@ AMainPlayer::AMainPlayer()
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	FloatingPawnMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement"));
+	WeaponMount = CreateDefaultSubobject<UArrowComponent>("Weapon Mount");
 
 	ColorShoot->SetSimulatePhysics(true);
 	ColorShoot->SetEnableGravity(true);
@@ -28,8 +31,9 @@ AMainPlayer::AMainPlayer()
 	ColorShoot->SetLinearDamping(10);
 
 	SetRootComponent(ColorShoot);
-	SpringArm->SetupAttachment(RootComponent);
 	VisualMesh->SetupAttachment(RootComponent);
+	WeaponMount->SetupAttachment(RootComponent);
+	SpringArm->SetupAttachment(RootComponent);
 	MainCamera->SetupAttachment(SpringArm);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -45,44 +49,102 @@ AMainPlayer::AMainPlayer()
 	bPaused = false;
 }
 
+// Called when the game starts or when spawned
+void AMainPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	ColorShoot->OnComponentHit.AddDynamic(this, &AMainPlayer::OnCollisionSphereHit);
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
+}
+
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
+void AMainPlayer::Interact()
+{
+	//IF InteractSphere is null
+	if (!InteractSphere)
+	{
+		//ASSIGN InteractSphere to the return value of NewObject<USphereComponent>(this, USphereComponent::StaticClass())
+		InteractSphere = NewObject<USphereComponent>(this, USphereComponent::StaticClass());
+		//CALL RegisterComponent() on InteractSphere
+		InteractSphere->RegisterComponent();
+		//CALL SetRelativeLocation() on InteractSphere passing in GetActorLocation()  
+		InteractSphere->SetRelativeLocation(this->GetActorLocation());
 
-void AMainPlayer::HoldWeapon(AWeapon* Weapon)
+		//CALL SetCollisionEnabled() on InteractSphere passing in ECollisionEnabled::QueryAndPhysics  
+		InteractSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//CALL SetGenerateOverlapEvents() on InteractSphere passing in true 
+		InteractSphere->SetGenerateOverlapEvents(true);
+
+		DrawDebugSphere(GetWorld(), GetActorLocation(), InteractSphere->GetUnscaledSphereRadius(), 26, FColor(181, 0, 0), false, 2, 0, 2);
+
+	}
+	else
+	{
+		//CALL DestroyComponent() on InteractSphere 
+		InteractSphere->DestroyComponent();
+		//SET InteractSphere to null
+		InteractSphere = nullptr;
+		//CALL Interact()
+		Interact();
+		//InteractSphere->SetRelativeLocation(this->GetActorLocation());
+
+	}
+
+	//DECLARE a TArray<AActor*> called items
+	TArray<AActor*> items;
+	//CALL GetOverlappingActors() on InteractSphere passing in items, AItemBase::StaticClass()  
+	InteractSphere->GetOverlappingActors(items, AItemBase::StaticClass());
+	//If we have any items
+	if (items.Num() > 0)
+	{
+		//DECLARE variable called Item of type AItemBase* and assign it to the return value of  Cast<AItemBase>(items[0])
+		AItemBase* Item = Cast<AItemBase>(items[0]);
+		//IF Item is null
+		if (Item == nullptr)
+			//RETURN
+			return;
+
+		//DECLARE variable called Weapon of type AWeaponBase* and assign it to the return value of  Cast<AWeaponBase>(Item)
+		AWeaponBase* Weapon = Cast<AWeaponBase>(Item);
+		//IF Weapon not null
+		if (Weapon != nullptr)
+		{
+			//CALL HoldWeapon() passing in Weapon 
+			HoldWeapon(Weapon);
+		}
+	}
+}
+
+void AMainPlayer::HoldWeapon(AWeaponBase* Weapon)
 {
 	check(Weapon != nullptr && "Passed a null weapon!");
-	//TODO Lab3 ACharacterBase::HoldWeapon(...):
-	/* Drop currently carried weapon first.*/
-	//CALL DropWeapon()
+
 	DropWeapon();
 
 	/* Attach weapon to the character.*/
 	//SET CurrentWeapon to weapon
 	CurrentWeapon = Weapon;
 	//CALL Attach() on the CurrentWeapon and pass in this
-	//CurrentWeapon->Attach(this);
+	CurrentWeapon->Attach(this);
 
 	//CALL Clear() on the CurrentWeapon's OnWeaponFired event
-	//CurrentWeapon->OnWeaponFired.Clear();
-	/* Subscribe to weapon's events.*/
-	//SUBSCRIBE to the CurrentWeapon's OnWeaponFired and pass in (this, &ACharacterBase::OnWeaponFired)
-	//CurrentWeapon->OnWeaponFired.AddDynamic(this, &ACharacterBase::OnWeaponFired);
+	CurrentWeapon->OnWeaponFired.Clear();
 }
 
 void AMainPlayer::DropWeapon()
 {
 	if (CurrentWeapon != NULL)
 	{
-		/* Unsubscribe from weapon's events.*/
-		//CALL RemoveDynamic(this, &ACharacterBase::OnWeaponFired) on the CurrentWeapon's OnWeaponFired event
-		//CurrentWeapon->OnWeaponFired.RemoveDynamic(this, &ACharacterBase::OnWeaponFired);
-
 		/* Detach weapon from the character.*/
 		//CALL Detach() on the CurrentWeapon()
-		//CurrentWeapon->Detach();
+		CurrentWeapon->Detach();
 		//SET CurrentWeapon to null
 		CurrentWeapon = nullptr;
 
@@ -119,37 +181,45 @@ void AMainPlayer::Pause()
 
 }
 
-//void AMainPlayer::Fire(bool Toggle)
-//{
-//	if (CurrentWeapon)
-//	{
-//		if (Toggle)
-//		{
-//			CurrentWeapon->PullTrigger();
-//		}
-//		else
-//		{
-//			CurrentWeapon->ReleaseTrigger();
-//		}
-//
-//		//SET bIsFiring to Toggle
-//		bIsFiring = Toggle;
-//	}
-//}
-
-//void AMainPlayer::Aim(bool Toggle)
-//{
-//	bIsAiming = Toggle;
-//}
-
-// Called when the game starts or when spawned
-void AMainPlayer::BeginPlay()
+void AMainPlayer::FirePressed()
 {
-	Super::BeginPlay();
-	
+	Fire(true);
+}
+
+//WEEK8
+void AMainPlayer::FireReleased()
+{
+	Fire(false);
+}
+
+void AMainPlayer::Fire(bool Toggle)
+{
+	if (CurrentWeapon)
+	{
+		if (Toggle)
+		{
+			CurrentWeapon->PullTrigger();
+		}
+		else
+		{
+			CurrentWeapon->ReleaseTrigger();
+		}
+
+		//SET bIsFiring to Toggle
+		bIsFiring = Toggle;
+	}
+}
+
+void AMainPlayer::DecreaseHealth()
+{
+	CurrentHealth -= 10;
 }
 
 void AMainPlayer::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+}
+
+void AMainPlayer::OnCollisionSphereHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 }
 
@@ -161,12 +231,13 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainPlayer::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainPlayer::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &AMainPlayer::Turn);
+
 	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &AMainPlayer::Pause);
-}
+	PlayerInputComponent->BindAction("Pickup", IE_Pressed, this, &AMainPlayer::Interact);
 
+	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainPlayer::FirePressed);
+	InputComponent->BindAction("Fire", IE_Released, this, &AMainPlayer::FireReleased);
 
-AWeapon* AMainPlayer::GetCurrentWeapon()
-{
-	return CurrentWeapon;
+	InputComponent->BindAction("DecreaseHealth", IE_Released, this, &AMainPlayer::DecreaseHealth);
 }
 

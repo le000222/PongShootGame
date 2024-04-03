@@ -27,27 +27,28 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
 	class USpringArmComponent* SpringArm;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Camera")
+	class UArrowComponent* WeaponMount;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ColorShoot")
+	class USphereComponent* InteractSphere;
+
+	UPROPERTY()
+	class AWeaponBase* CurrentWeapon;
+
 	UPROPERTY(EditDefaultsOnly)
 	float MaxSpeed;
 
-	UFUNCTION(BlueprintPure)
-	class AWeapon* GetCurrentWeapon();
-
 	UPROPERTY(EditDefaultsOnly)
-	float MaximumHealth = 40.0f;
+	float MaximumHealth = 100;
 
 	UPROPERTY(BlueprintReadOnly)
-	float CurrentHealth;
+	float CurrentHealth = MaximumHealth;
 
 	//UPROPERTY(EditAnywhere, Category = "HUD");
 	//TSubclassOf<class UPongHUD> WBP_PongHUD;
 
 	//class UPongHUD* MyHud;
-
-	// Function to fire the weapon.
-	//void Fire(bool Toggle);
-	// Function to toggle aiming mode.
-	//void Aim(bool Toggle);
 
 protected:
 	// Called when the game starts or when spawned
@@ -60,6 +61,9 @@ protected:
 	UFUNCTION()
 	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnCollisionSphereHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -70,18 +74,20 @@ public:
 private:
 	float MoveVerticalAmount = 0;
 	float MoveHorizontalAmount = 0;
+	//float CurrentHealth = MaximumHealth;
 
-	void HoldWeapon(class AWeapon* Weapon);
-	// Function to drop the currently held weapon.
+	void HoldWeapon(class AWeaponBase* Weapon);
 	void DropWeapon();
+	void FirePressed();
+	void FireReleased();
+	void Fire(bool Toggle);
+	void Interact();
 
 	void Turn(float Amount);
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void Pause();
-
-	UPROPERTY()
-	class AWeapon* CurrentWeapon;
+	void DecreaseHealth();
 
 	// Boolean flag to indicate aiming state.
 	bool bIsAiming;
