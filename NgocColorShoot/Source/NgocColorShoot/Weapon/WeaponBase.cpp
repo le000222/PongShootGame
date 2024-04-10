@@ -5,7 +5,7 @@
 #include <Components/SkeletalMeshComponent.h>
 #include <Components/PrimitiveComponent.h>
 #include <Components/ArrowComponent.h>
-#include "../Player/MainPlayer.h"
+#include "../Player/MainCharacter.h"
 
 AWeaponBase::AWeaponBase() :
 	Primitive(nullptr),
@@ -36,10 +36,8 @@ void AWeaponBase::PostInitializeComponents()
 	/* Get the muzzle arrow component.*/
 	//DECLARE a auto variable called Components and SET it to the return value of GetComponents()
 	auto Components = GetComponents();
-	//FOR Each Component in Components
 	for (auto Component : Components)
 	{
-		//IF Component->GetFName() IS "Muzzle"
 		if (Component->GetFName() == "Muzzle")
 		{
 			//SET the Muzzle to the Component, Cast it as a UArrowComponent
@@ -95,9 +93,11 @@ void AWeaponBase::Attach(class APawn* Character)
 	Primitive->SetSimulatePhysics(false);
 
 	/* Attach weapon to the character's mesh.*/
-	AttachToComponent(Cast<AMainPlayer>(Character)->WeaponMount, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//CALL AttachToComponent() and pass in (Character->GetSkeletalMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "WeaponSocket") <-- We are attaching this Actor to the Characters Skeletal Mesh at the WeaponSocket
-	//AttachToComponent(Character->GetSkeletalMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, "WeaponSocket");
+	if (PositionWeapon == EWeaponPosition::Option1)
+		AttachToComponent(Cast<AMainCharacter>(Character)->BlueWeaponMount, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	else
+		AttachToComponent(Cast<AMainCharacter>(Character)->RedWeaponMount, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
 }
 
 void AWeaponBase::Detach()
@@ -124,12 +124,10 @@ void AWeaponBase::Detach()
 
 void AWeaponBase::PullTrigger()
 {
-	//TODO Lab3 AWeaponBase::PullTrigger():
-	//DECLARE a auto variable called TimerManager and assign it to the return value of GetWorld()->GetTimerManager()
+
 	auto& TimerManager = GetWorld()->GetTimerManager();
 
 	/* Check current ammo value before attempting to firing.*/
-	//IF CurrentAmmo is GREATER than 0
 	if (CurrentAmmo > 0)
 	{
 		/*Start the firing timer and use the remaining time of the previous timer.*/

@@ -7,6 +7,13 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponFiredSignature);
 
+UENUM(BlueprintType)
+enum class EWeaponPosition
+{
+	Option1 UMETA(DisplayName = "Blue"),
+	Option2 UMETA(DisplayName = "Red"),
+};
+
 UCLASS()
 class NGOCCOLORSHOOT_API AWeaponBase : public AItemBase
 {
@@ -27,6 +34,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponFiredSignature OnWeaponFired;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Position")
+	EWeaponPosition PositionWeapon;
 
 public:
 	void Attach(class APawn* Character);
