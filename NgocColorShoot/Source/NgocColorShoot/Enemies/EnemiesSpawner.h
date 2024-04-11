@@ -15,6 +15,28 @@ public:
 	// Sets default values for this actor's properties
 	AEnemiesSpawner();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawner")
+	class UBoxComponent* SpawnArea;
+
+	UPROPERTY(EditAnywhere, Category = "Spawner")
+	float SpawnDelayRangeLow;
+
+	UPROPERTY(EditAnywhere, Category = "Spawner")
+	float SpawnDelayRangeHigh;
+
+	UPROPERTY(EditAnywhere, Category = "Spawner")
+	float DifficultyScalar;
+
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	TSubclassOf<class AEnemy> RedEnemy;
+
+	UPROPERTY(EditAnywhere, Category = "Enemy")
+	TSubclassOf<class AEnemy> BlueEnemy;
+
+	void SpawnEnemy();
+
+	FVector GetRandomPointInVolume();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

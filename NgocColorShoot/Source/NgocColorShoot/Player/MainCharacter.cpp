@@ -3,8 +3,11 @@
 
 #include "MainCharacter.h"
 #include "../Weapon/WeaponBase.h"
+#include "../UI/PlayerHud.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
@@ -21,15 +24,18 @@ AMainCharacter::AMainCharacter() :
 	MainCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	BlueWeaponMount = CreateDefaultSubobject<UArrowComponent>(TEXT("BlueMount"));
 	RedWeaponMount = CreateDefaultSubobject<UArrowComponent>(TEXT("RedMount"));
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 
-	SpringArm->SetupAttachment(GetRootComponent());
 	BlueWeaponMount->SetupAttachment(GetRootComponent());
 	RedWeaponMount->SetupAttachment(GetRootComponent());
+	SpringArm->SetupAttachment(GetRootComponent());
+	HealthBar->SetupAttachment(GetRootComponent());
 	MainCamera->SetupAttachment(SpringArm);
 
 	SpringArm->bDoCollisionTest = false;
 
-	CurrentWeapon = nullptr;
+	CurrentBlueWeapon = nullptr;
+	CurrentRedWeapon = nullptr;
 	CurrentHealth = MaximumHealth;
 
 	bIsAiming = false;
@@ -43,10 +49,23 @@ void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (WBP_PlayerHud)
+	{
+		MyHud = CreateWidget<UPlayerHud>(GetWorld(), WBP_PlayerHud);
+		MyHud->AddToViewport();
+	}
+
 	SetCanBeDamaged(true);
 
 	SetReplicates(true);
 	SetReplicateMovement(true);
+	
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		PC->bEnableClickEvents = true;
+		PC->bShowMouseCursor = true;
+	}
 	
 }
 
@@ -94,18 +113,13 @@ void AMainCharacter::Interact()
 	//If we have any items
 	if (items.Num() > 0)
 	{
-		//DECLARE variable called Item of type AItemBase* and assign it to the return value of  Cast<AItemBase>(items[0])
 		AItemBase* Item = Cast<AItemBase>(items[0]);
-		//IF Item is null
 		if (Item == nullptr)
 			return;
 
-		//DECLARE variable called Weapon of type AWeaponBase* and assign it to the return value of  Cast<AWeaponBase>(Item)
 		AWeaponBase* Weapon = Cast<AWeaponBase>(Item);
-		//IF Weapon not null
 		if (Weapon != nullptr)
 		{
-			//CALL HoldWeapon() passing in Weapon 
 			HoldWeapon(Weapon);
 		}
 	}
@@ -115,32 +129,48 @@ void AMainCharacter::HoldWeapon(AWeaponBase* Weapon)
 {
 	check(Weapon != nullptr && "Passed a null weapon!");
 
-	/* Attach weapon to the character.*/
-	//SET CurrentWeapon to weapon
-	CurrentWeapon = Weapon;
-	//CALL Attach() on the CurrentWeapon and pass in this
-	CurrentWeapon->Attach(this);
+	if (Weapon->PositionWeapon == EWeaponPosition::Option1) {
+		CurrentBlueWeapon = Weapon;
 
-	//CALL Clear() on the CurrentWeapon's OnWeaponFired event
-	CurrentWeapon->OnWeaponFired.Clear();
+		CurrentBlueWeapon->Attach(this);
+
+		CurrentBlueWeapon->OnWeaponFired.Clear();
+	}
+
+	else {
+		CurrentRedWeapon = Weapon;
+
+		CurrentRedWeapon->Attach(this);
+
+		CurrentRedWeapon->OnWeaponFired.Clear();
+
+		//CurrentRedWeapon->OnWeaponFired.AddDynamic(this, &AMainCharacter::OnWeaponFired);
+
+	}
+}
+
+void AMainCharacter::OnWeaponFired()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Red is here"));
 }
 
 void AMainCharacter::DropWeapon()
 {
-	if (CurrentWeapon != NULL)
+	if (CurrentBlueWeapon != NULL)
 	{
 		/* Detach weapon from the character.*/
-		//CALL Detach() on the CurrentWeapon()
-		CurrentWeapon->Detach();
-		//SET CurrentWeapon to null
-		CurrentWeapon = nullptr;
-
-		/* Reset weapon states states.*/
-		//SET bIsFiring to false
-		bIsFiring = false;
-		//SET bIsAiming to false
-		bIsAiming = false;
+		CurrentBlueWeapon->Detach();
+		CurrentBlueWeapon = nullptr;
 	}
+
+	else if (CurrentRedWeapon != NULL) 
+	{
+		CurrentRedWeapon->Detach();
+		CurrentRedWeapon = nullptr;
+	}
+		/* Reset weapon states states.*/
+		bIsFiring = false;
+		bIsAiming = false;
 }
 
 void AMainCharacter::Move(FVector Direction, float Scale)
@@ -172,28 +202,56 @@ void AMainCharacter::Pause()
 
 }
 
-void AMainCharacter::FirePressed()
+void AMainCharacter::FireBluePressed()
 {
-	Fire(true);
+	FireBlue(true);
 }
 
-//WEEK8
-void AMainCharacter::FireReleased()
+void AMainCharacter::FireRedPressed()
 {
-	Fire(false);
+	FireRed(true);
 }
 
-void AMainCharacter::Fire(bool Toggle)
+
+void AMainCharacter::FireBlueReleased()
 {
-	if (CurrentWeapon)
+	FireBlue(false);
+}
+
+void AMainCharacter::FireRedReleased()
+{
+	FireRed(false);
+}
+
+void AMainCharacter::FireBlue(bool Toggle)
+{
+	if (CurrentBlueWeapon)
 	{
 		if (Toggle)
 		{
-			CurrentWeapon->PullTrigger();
+			CurrentBlueWeapon->PullTrigger();
 		}
 		else
 		{
-			CurrentWeapon->ReleaseTrigger();
+			CurrentBlueWeapon->ReleaseTrigger();
+		}
+
+		//SET bIsFiring to Toggle
+		bIsFiring = Toggle;
+	}
+}
+
+void AMainCharacter::FireRed(bool Toggle)
+{
+	if (CurrentRedWeapon)
+	{
+		if (Toggle)
+		{
+			CurrentRedWeapon->PullTrigger();
+		}
+		else
+		{
+			CurrentRedWeapon->ReleaseTrigger();
 		}
 
 		//SET bIsFiring to Toggle
@@ -218,8 +276,10 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Pause", IE_Pressed, this, &AMainCharacter::Pause);
 	PlayerInputComponent->BindAction("Pickup", IE_Pressed, this, &AMainCharacter::Interact);
 
-	InputComponent->BindAction("Fire", IE_Pressed, this, &AMainCharacter::FirePressed);
-	InputComponent->BindAction("Fire", IE_Released, this, &AMainCharacter::FireReleased);
+	InputComponent->BindAction("FireBlue", IE_Pressed, this, &AMainCharacter::FireBluePressed);
+	InputComponent->BindAction("FireBlue", IE_Released, this, &AMainCharacter::FireBlueReleased);
+	InputComponent->BindAction("FireRed", IE_Pressed, this, &AMainCharacter::FireRedPressed);
+	InputComponent->BindAction("FireRed", IE_Released, this, &AMainCharacter::FireRedReleased);
 
 	InputComponent->BindAction("DecreaseHealth", IE_Released, this, &AMainCharacter::DecreaseHealth);
 

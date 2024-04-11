@@ -30,8 +30,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	class UArrowComponent* RedWeaponMount;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character")
+	class UWidgetComponent* HealthBar;
+
 	UPROPERTY()
-	class AWeaponBase* CurrentWeapon;
+	class AWeaponBase* CurrentBlueWeapon;
+	
+	UPROPERTY()
+	class AWeaponBase* CurrentRedWeapon;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxSpeed;
@@ -44,10 +50,10 @@ public:
 
 	class USkeletalMeshComponent* SkeletalMesh;
 
-	//UPROPERTY(EditAnywhere, Category = "HUD");
-	//TSubclassOf<class UPongHUD> WBP_PongHUD;
+	UPROPERTY(EditAnywhere, Category = "PlayerHud");
+	TSubclassOf<class UPlayerHud> WBP_PlayerHud;
 
-	//class UPongHUD* MyHud;
+	class UPlayerHud* MyHud;
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,10 +75,16 @@ private:
 
 	void HoldWeapon(class AWeaponBase* Weapon);
 	void DropWeapon();
-	void FirePressed();
-	void FireReleased();
-	void Fire(bool Toggle);
+	void FireBluePressed();
+	void FireBlueReleased();
+	void FireRedPressed();
+	void FireRedReleased();
+	void FireBlue(bool Toggle);
+	void FireRed(bool Toggle);
 	void Interact();
+
+	UFUNCTION()
+	void OnWeaponFired();
 
 	void Move(FVector Direction, float Scale);
 	void Turn(float Amount);
