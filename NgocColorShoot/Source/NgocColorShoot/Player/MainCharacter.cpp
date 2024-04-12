@@ -74,9 +74,6 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	//GetCharacterMovement()->CurrentHealth = MaximumHealth;
-
 }
 
 void AMainCharacter::Interact()
@@ -263,6 +260,19 @@ void AMainCharacter::DecreaseHealth()
 {
 	CurrentHealth -= 10;
 }
+
+void AMainCharacter::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaximumHealth);
+
+	/* Check if the current health has dropped to 0 or below, which would indicate the actor has been defeated or killed.*/
+	if (CurrentHealth <= 0.0f)
+	{
+		MyHud->
+	}
+}
+}
+
 
 // Called to bind functionality to input
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

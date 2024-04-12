@@ -69,10 +69,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
-	float MoveVerticalAmount = 0;
-	float MoveHorizontalAmount = 0;
-	//float CurrentHealth = MaximumHealth;
-
 	void HoldWeapon(class AWeaponBase* Weapon);
 	void DropWeapon();
 	void FireBluePressed();
@@ -85,6 +81,9 @@ private:
 
 	UFUNCTION()
 	void OnWeaponFired();
+
+	UFUNCTION()
+	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	void Move(FVector Direction, float Scale);
 	void Turn(float Amount);

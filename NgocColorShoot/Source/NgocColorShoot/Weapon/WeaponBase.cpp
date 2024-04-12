@@ -16,7 +16,7 @@ AWeaponBase::AWeaponBase() :
 	// Set default variables.
 	FireRate = 10.0f;
 
-	MaximumAmmo = 30;
+	MaximumAmmo = 200;
 	CurrentAmmo = -1;
 }
 
@@ -24,42 +24,28 @@ void AWeaponBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	//TODO Lab3 AWeaponBase::PostInitializeComponents():
 		/* Get the root primitive component.*/
-		//SET Primitive by Casting the RootComponent to a UPrimitiveComponent. CALL GetRootComponent(). The RootComponent is the weapon mesh. A StaticMeshComponent that will be added via the Blueprint for this Actor
 	Primitive = Cast<UPrimitiveComponent>(GetRootComponent());
 
-
-	/*Assert - If the Primitive is not null, continue, otherwise CRASH with the reason. Leave this commented*/
-	//check(Primitive != nullptr && "Actor is mising a primitive component!");
-
 	/* Get the muzzle arrow component.*/
-	//DECLARE a auto variable called Components and SET it to the return value of GetComponents()
 	auto Components = GetComponents();
 	for (auto Component : Components)
 	{
 		if (Component->GetFName() == "Muzzle")
 		{
-			//SET the Muzzle to the Component, Cast it as a UArrowComponent
 			Muzzle = Cast<UArrowComponent>(Component);
-			//BREAK
 			break;
 		}
-		//ENDIF
 	}
-	//END FOR
 
 	/* initialize default values.*/
-	//SET MaximumAmmo to the return value of FMath::Max(1, MaximumAmmo)
 	MaximumAmmo = FMath::Max(1, MaximumAmmo);
-	//SET CurrentAmmo to the return value of FMath::Min(CurrentAmmo, MaximumAmmo)
 	CurrentAmmo = FMath::Min(CurrentAmmo, MaximumAmmo);
 
 	/* Set current ammo to maximum ammo.*/
 	//IF the CurrentAmmo is LESS than 0
 	if (CurrentAmmo < 0)
 	{
-		//SET CurrentAmmo to MaximumAmmo
 		CurrentAmmo = MaximumAmmo;
 	}
 	//ENDIF
@@ -159,9 +145,7 @@ void AWeaponBase::ReleaseTrigger()
 
 void AWeaponBase::Fire()
 {
-	//TODO Lab3 AWeaponBase::Fire():
 	/* Check current ammo value before actually firing.*/
-	//IF CurrentAmmo is GREATER than 0
 	if (CurrentAmmo > 0)
 	{
 		/*Spawn a projectile.*/
@@ -176,11 +160,9 @@ void AWeaponBase::Fire()
 		GetWorld()->SpawnActor(ProjectileType, &Transform, SpawnParams);
 
 		/* Broadcast a weapon fired event.*/
-		//CALL Broadcast() on the OnWeaponFired event
 		OnWeaponFired.Broadcast();
 
 		/*Decrement the ammo count.*/
-		//SUBTRACT 1 from current Ammo
 		CurrentAmmo--;
 	}
 	//ENDIF
@@ -188,9 +170,6 @@ void AWeaponBase::Fire()
 
 void AWeaponBase::ClearFireTimer()
 {
-	//TODO Lab3 AWeaponBase::ClearFireTimer():
-	/* Clear the timer after a delay set in ReleaseTrigger() function.*/
-	//Un-Comment the line below
 	GetWorld()->GetTimerManager().ClearTimer(FireTimer);
 }
 
