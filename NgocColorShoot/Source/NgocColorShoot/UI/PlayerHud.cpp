@@ -13,6 +13,8 @@ void UPlayerHud::NativeConstruct()
 {
 	if (ClickMeButton)
 	{
+		ClickMeButton->SetVisibility(ESlateVisibility::Hidden);
+		YouLost->SetVisibility(ESlateVisibility::Hidden);
 		ClickMeButton->OnClicked.AddDynamic(this, &UPlayerHud::ButtonClicked);
 	}
 }
@@ -43,8 +45,7 @@ FText UPlayerHud::SetWeaponAmmoCount()
 		{
 			AWeaponBase* BlueWeapon = PlayerCharacter->CurrentBlueWeapon;
 			AWeaponBase* RedWeapon = PlayerCharacter->CurrentRedWeapon;
-			//WeaponAmmoCountText->SetText(FText::AsNumber(Weapon->CurrentAmmo) );
-			//return FText::FromString(FString::FromInt(Weapon->CurrentAmmo));
+
 			int BlueAmmoCount = 0;
 			int RedAmmoCount = 0;
 			int MaxAmmo = 0;
@@ -93,4 +94,13 @@ void UPlayerHud::ButtonClicked()
 		PC->ConsoleCommand("RestartLevel");
 	}
 
+}
+
+void UPlayerHud::EndGame()
+{
+	if (ClickMeButton)
+	{
+		ClickMeButton->SetVisibility(ESlateVisibility::Visible);
+		YouLost->SetVisibility(ESlateVisibility::Visible);
+	}
 }

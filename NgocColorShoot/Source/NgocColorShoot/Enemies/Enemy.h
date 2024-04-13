@@ -18,6 +18,12 @@ enum class EAIState : uint8
 	Attack
 };
 
+UENUM(BlueprintType)
+enum class EnemyColor : uint8 {
+	red,
+	blue
+};
+
 UCLASS()
 class NGOCCOLORSHOOT_API AEnemy : public ACharacter, public IGenericTeamAgentInterface
 {
@@ -30,14 +36,25 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, Category = "Enemy")
+	UCapsuleComponent* EnemyCapsule;
+
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
+
+	float MaximumHealth = 5.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CurrentHealth = MaximumHealth;
 
 	UFUNCTION()//Must be a UFUnc otherwise we cant bind this function
 		void OnPawnSeen(APawn* SeenPawn);
 
 	UFUNCTION()
 	void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
+	UFUNCTION()
+	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	FRotator OriginalRotator;
 
@@ -54,9 +71,6 @@ protected:
 
 	void SetGuardState(EAIState NewState);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
-	void OnStateChanged(EAIState NewState);
-
 	//Challenge - Adding Patrol
 	UPROPERTY(EditInstanceOnly, Category = "AI") //Can set in editor for each instance. CAN BE CHANGED ONLY FROM BLUEPRINTS
 		bool bPatrol;
@@ -72,11 +86,17 @@ protected:
 	UFUNCTION()
 	void MoveToNextPatrolPoint();
 
-
 	TSubclassOf<class AWeaponBase> WeaponBlueprint;
+
+	UFUNCTION()
+	void EnemyTakeDamage();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	EnemyColor EnemyColor;
 
 private:
 	AActor* TargetActor;

@@ -2,6 +2,8 @@
 
 
 #include "Enemy.h"
+#include "../Player/MainCharacter.h"
+#include "../Weapon/ProjectileBase.h"
 #include "NavigationSystem.h"
 #include "AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h"
 #include "Perception/PawnSensingComponent.h"
@@ -23,7 +25,6 @@ AEnemy::AEnemy()
 	//SUBSCRIBE to the OnHearNoise Event in the PawnSensingComp, passing in the OnNoiseHeard function
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AEnemy::OnNoiseHeard);
 
-
 	//SET the GuardState to EAIState::Idle
 	GuardState = EAIState::Idle;	//or SetGuardState(EAIState::Idle);
 }
@@ -40,7 +41,36 @@ void AEnemy::BeginPlay()
 		//CALL MoveToNextPatrolPoint()
 		MoveToNextPatrolPoint();
 	}
-	//ENDIF
+	
+	OnActorHit.AddDynamic(this, &AEnemy::OnHitActor);
+}
+
+void AEnemy::EnemyTakeDamage()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Take Damage"));
+	float Damage = 1.0f;
+	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaximumHealth);
+
+	if (CurrentHealth <= 0)
+	{
+		this->Destroy();
+	}
+}
+
+void AEnemy::OnHitActor(AActor* SelfActor, AActor* Other, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (Other != nullptr && Other->IsA<AProjectileBase>())
+	{
+		AProjectileBase* PB = Cast<AProjectileBase>(Other);
+		if (PB->ProjectileColor == ProjectileColor::blue && this->EnemyColor == EnemyColor::blue)
+		{
+			this->EnemyTakeDamage();
+		}
+		else if (PB->ProjectileColor == ProjectileColor::red && this->EnemyColor == EnemyColor::red)
+		{
+			this->EnemyTakeDamage();
+		}
+	}
 }
 
 void AEnemy::OnPawnSeen(APawn* SeenPawn)

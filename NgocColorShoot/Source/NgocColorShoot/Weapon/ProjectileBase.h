@@ -6,6 +6,11 @@
 #include "ProjectileBase.generated.h"
 
 //TODO 1: Study this Class
+UENUM(BlueprintType)
+enum class ProjectileColor : uint8 {
+	red, 
+	blue
+};
 
 UCLASS()
 class NGOCCOLORSHOOT_API AProjectileBase : public AActor
@@ -21,6 +26,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float LifeTime;
+
+	UPROPERTY(EditAnywhere)
+	ProjectileColor ProjectileColor;
 
 protected:
 	AProjectileBase();

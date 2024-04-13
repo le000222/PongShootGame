@@ -68,6 +68,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+	void DecreaseHealth();
+
 private:
 	void HoldWeapon(class AWeaponBase* Weapon);
 	void DropWeapon();
@@ -83,14 +86,13 @@ private:
 	void OnWeaponFired();
 
 	UFUNCTION()
-	void OnTakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	void Move(FVector Direction, float Scale);
 	void Turn(float Amount);
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void Pause();
-	void DecreaseHealth();
 
 	// Boolean flag to indicate aiming state.
 	bool bIsAiming;

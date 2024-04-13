@@ -4,9 +4,12 @@
 #include "MainCharacter.h"
 #include "../Weapon/WeaponBase.h"
 #include "../UI/PlayerHud.h"
+#include "../Enemies/Enemy.h"
+#include "../UI/HealthBar3D.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -57,15 +60,10 @@ void AMainCharacter::BeginPlay()
 
 	SetCanBeDamaged(true);
 
+	OnActorHit.AddDynamic(this, &AMainCharacter::OnHitActor);
+
 	SetReplicates(true);
 	SetReplicateMovement(true);
-	
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (PC)
-	{
-		PC->bEnableClickEvents = true;
-		PC->bShowMouseCursor = true;
-	}
 	
 }
 
@@ -73,7 +71,6 @@ void AMainCharacter::BeginPlay()
 void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AMainCharacter::Interact()
@@ -81,31 +78,22 @@ void AMainCharacter::Interact()
 	if (!InteractSphere)
 	{
 		InteractSphere = NewObject<USphereComponent>(this, USphereComponent::StaticClass());
-		//CALL RegisterComponent() on InteractSphere
-		InteractSphere->RegisterComponent();
-		//CALL SetRelativeLocation() on InteractSphere passing in GetActorLocation()  
+		InteractSphere->RegisterComponent();  
 		InteractSphere->SetRelativeLocation(this->GetActorLocation());
-
-		//CALL SetCollisionEnabled() on InteractSphere passing in ECollisionEnabled::QueryAndPhysics  
+ 
 		InteractSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		//CALL SetGenerateOverlapEvents() on InteractSphere passing in true 
 		InteractSphere->SetGenerateOverlapEvents(true);
 	}
 	else
 	{
-		//CALL DestroyComponent() on InteractSphere 
 		InteractSphere->DestroyComponent();
-		//SET InteractSphere to null
 		InteractSphere = nullptr;
-		//CALL Interact()
 		Interact();
 		//InteractSphere->SetRelativeLocation(this->GetActorLocation());
 
 	}
 
-	//DECLARE a TArray<AActor*> called items
 	TArray<AActor*> items;
-	//CALL GetOverlappingActors() on InteractSphere passing in items, AItemBase::StaticClass()  
 	InteractSphere->GetOverlappingActors(items, AItemBase::StaticClass());
 	//If we have any items
 	if (items.Num() > 0)
@@ -149,6 +137,14 @@ void AMainCharacter::HoldWeapon(AWeaponBase* Weapon)
 void AMainCharacter::OnWeaponFired()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Red is here"));
+}
+
+void AMainCharacter::OnHitActor(AActor* SelfActor, AActor* Other, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (Other != nullptr && Other->IsA<AEnemy>())
+	{
+		this->DecreaseHealth();
+	}
 }
 
 void AMainCharacter::DropWeapon()
@@ -233,7 +229,6 @@ void AMainCharacter::FireBlue(bool Toggle)
 			CurrentBlueWeapon->ReleaseTrigger();
 		}
 
-		//SET bIsFiring to Toggle
 		bIsFiring = Toggle;
 	}
 }
@@ -258,21 +253,32 @@ void AMainCharacter::FireRed(bool Toggle)
 
 void AMainCharacter::DecreaseHealth()
 {
-	CurrentHealth -= 10;
-}
+	UE_LOG(LogTemp, Warning, TEXT("Take Damage"));
+	float Damage = 1.0f;
 
-void AMainCharacter::OnTakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaximumHealth);
 
-	/* Check if the current health has dropped to 0 or below, which would indicate the actor has been defeated or killed.*/
+	if (HealthBar)
+	{
+		UHealthBar3D* HealthWidget = Cast<UHealthBar3D>(HealthBar->GetUserWidgetObject());
+		if (HealthWidget)
+		{
+			HealthWidget->SetHealthProgress(CurrentHealth / MaximumHealth);
+		}
+	}
+
 	if (CurrentHealth <= 0.0f)
 	{
-		MyHud->
+		APlayerController* PC = GetWorld()->GetFirstPlayerController();
+		if (PC)
+		{
+			PC->bEnableClickEvents = true;
+			PC->bShowMouseCursor = true;
+		}
+		this->Destroy();
+		MyHud->EndGame();
 	}
 }
-}
-
 
 // Called to bind functionality to input
 void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -291,7 +297,7 @@ void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	InputComponent->BindAction("FireRed", IE_Pressed, this, &AMainCharacter::FireRedPressed);
 	InputComponent->BindAction("FireRed", IE_Released, this, &AMainCharacter::FireRedReleased);
 
-	InputComponent->BindAction("DecreaseHealth", IE_Released, this, &AMainCharacter::DecreaseHealth);
+	//InputComponent->BindAction("DecreaseHealth", IE_Released, this, &AMainCharacter::DecreaseHealth);
 
 }
 

@@ -3,3 +3,11 @@
 
 #include "NgocColorShootGameState.h"
 
+ANgocColorShootGameState::ANgocColorShootGameState()
+{
+}
+
+void ANgocColorShootGameState::BeginPlay()
+{
+	Super::BeginPlay();
+}

@@ -16,9 +16,9 @@ AEnemiesSpawner::AEnemiesSpawner()
 
 	SetRootComponent(SpawnArea);
 
-	SpawnDelayRangeLow = 1.0f;
-	SpawnDelayRangeHigh = 2.0f;
-	DifficultyScalar = 0.1f;
+	SpawnDelayRangeLow = 5.0f;
+	SpawnDelayRangeHigh = 20.0f;
+	DifficultyScalar = 1.1f;
 
 }
 
@@ -41,22 +41,17 @@ void AEnemiesSpawner::Tick(float DeltaTime)
 void AEnemiesSpawner::SpawnEnemy()
 {
 	// Calculate some new spawn delays so that the game gets harder over time
-	SpawnDelayRangeLow = SpawnDelayRangeLow / DifficultyScalar;
-	SpawnDelayRangeHigh = SpawnDelayRangeHigh / DifficultyScalar;
+	SpawnDelayRangeLow /= DifficultyScalar;
+	SpawnDelayRangeHigh /= DifficultyScalar;
 	// We want this delay to decrease over time, so that the game gets harder
 	float SpawnDelay = FMath::FRandRange(SpawnDelayRangeLow, SpawnDelayRangeHigh);
 
 	FVector SpawnLocation = GetRandomPointInVolume();
 
-	int randomNumber = FMath::RandRange(1, 20);
-	if (randomNumber < 10)
-	{
-		AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(RedEnemy, SpawnLocation, FRotator::ZeroRotator);
-	}
-	else
-	{
-		AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(BlueEnemy, SpawnLocation, FRotator::ZeroRotator);
-	}
+	UClass* EnemyClass = (FMath::RandRange(0, 1) < 0.5) ? RedEnemy : BlueEnemy;
+	AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
+	
+	GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AEnemiesSpawner::SpawnEnemy, SpawnDelay, false);
 }
 
 FVector AEnemiesSpawner::GetRandomPointInVolume()

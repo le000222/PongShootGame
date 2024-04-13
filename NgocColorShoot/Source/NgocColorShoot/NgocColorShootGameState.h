@@ -13,5 +13,12 @@ UCLASS()
 class NGOCCOLORSHOOT_API ANgocColorShootGameState : public AGameStateBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	ANgocColorShootGameState();
+
+	bool GameStart = false;
+
+protected:
+	virtual void BeginPlay() override;
 };

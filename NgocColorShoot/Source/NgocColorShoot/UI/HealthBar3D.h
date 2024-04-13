@@ -18,9 +18,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UProgressBar* HealthBar = nullptr;
 
-
 	virtual bool Initialize() override;
 
 	UFUNCTION()
-	float SetHealthProgress();
+	void SetHealthProgress(float HealthPercent);
 };

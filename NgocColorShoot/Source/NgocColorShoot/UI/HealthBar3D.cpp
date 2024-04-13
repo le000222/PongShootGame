@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HealthBar3D.h"
+#include "../Player/MainCharacter.h"
 #include "Components/ProgressBar.h"
+#include "Kismet/GameplayStatics.h"
 
 bool UHealthBar3D::Initialize()
 {
@@ -9,13 +11,21 @@ bool UHealthBar3D::Initialize()
 
 	if (HealthBar)
 	{
-		HealthBar->PercentDelegate.BindUFunction(this, "SetHealthProgress");
+		AMainCharacter* MainCharacter = Cast<AMainCharacter>(UGameplayStatics::GetActorOfClass(GetWorld(), AMainCharacter::StaticClass()));
+		HealthBar->SetPercent(100);
+		if (MainCharacter)
+		{
+			HealthBar->PercentDelegate.BindUFunction(this, "SetHealthProgress");
+		}
 	}
 	return true;
 }
 
-float UHealthBar3D::SetHealthProgress()
+void UHealthBar3D::SetHealthProgress(float HealthPercent)
 {
-	return 1;
+	if (HealthBar)
+	{
+		HealthBar->SetPercent(HealthPercent);
+	}
 }
 

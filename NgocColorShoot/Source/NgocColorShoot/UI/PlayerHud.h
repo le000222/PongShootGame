@@ -27,6 +27,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UProgressBar* HealthBar = nullptr;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UTextBlock* YouLost = nullptr;
 
 	virtual bool Initialize() override;
 
@@ -35,6 +37,9 @@ public:
 
 	UFUNCTION()
 	float SetHealthProgress();
+
+	UFUNCTION()
+	void EndGame();
 
 private:
 	UFUNCTION()
